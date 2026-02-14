@@ -17,13 +17,11 @@ func main() {
 	router.Get("/unshorten/{link}", func(w http.ResponseWriter, r *http.Request) {
 		link := chi.URLParam(r, "link")
 		long_link := unshorten_link(link)
-		log.Println(long_link)
 		w.Write([]byte(long_link))
 	})
 	router.Post("/shorten/{link}", func(w http.ResponseWriter, r *http.Request) {
 		link := chi.URLParam(r, "link")
 		short_link := get_short_link(link)
-		log.Println(short_link)
 		w.Write([]byte(short_link))
 	})
 	// start server
