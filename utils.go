@@ -1,42 +1,50 @@
 package main
 
-import "math/rand"
-
-var shortToLong = make(map[string]string)
-var longToShort = make(map[string]string)
+import (
+	"log"
+	"math/rand"
+	"url_shortener/database"
+)
 
 const ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 const LINK_LENGTH = 10
 
-func unshorten_link(shorten_link string) string {
-	long_link := get_from_db(shorten_link)
-	return long_link
-}
+func unshorten_link(shorten_link string, storage database.Storage) (string, error) {
 
-func get_short_link(long_link string) string {
-	short_link := longToShort[long_link]
-	if short_link != "" {
-		return longToShort[long_link]
+	long_link, err := storage.Get_long_link(shorten_link)
+	if err != nil {
+		return "", err
 	}
-	short_link = create_short_link(long_link)
-	store_in_db(short_link, long_link)
-	return short_link
+	return long_link, nil
 }
 
+func get_short_link(long_link string, storage database.Storage) (string, error) {
+	log.Println("in get_short_link")
+	if storage.Check_long_link(long_link) {
+		return storage.Get_short_link(long_link)
+	}
+	var short_link string
+	for {
+
+		short_link = create_short_link(long_link)
+
+		if !storage.Check_short_link(short_link) {
+			break
+		}
+	}
+	var err = storage.Store_in_db(short_link, long_link)
+	if err != nil {
+		return "", err
+	}
+	return short_link, nil
+}
+
+// TODO: redo to hash
 func create_short_link(long_link string) string {
 	short_link := make([]byte, LINK_LENGTH)
-	for i := 0; i < LINK_LENGTH; i++ {
+	for i := range LINK_LENGTH {
 		short_link[i] = ALLOWED_CHARS[rand.Intn(len(ALLOWED_CHARS))]
 	}
 
 	return string(short_link)
-}
-
-func get_from_db(short_link string) string {
-	return shortToLong[short_link]
-}
-
-func store_in_db(short_link string, long_link string) {
-	shortToLong[short_link] = long_link
-	longToShort[long_link] = short_link
 }
