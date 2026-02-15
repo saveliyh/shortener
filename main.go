@@ -44,18 +44,19 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	// define a route
-	router.Get("/unshorten/{link}", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/{link}", func(w http.ResponseWriter, r *http.Request) {
 		link := chi.URLParam(r, "link")
 		log.Println(link)
 		long_link, err := unshorten_link(link, storage)
 		if err != nil {
+			log.Println(err)
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		w.Write([]byte(long_link))
 	})
-	router.Post("/shorten/{link}", func(w http.ResponseWriter, r *http.Request) {
-		link := chi.URLParam(r, "link")
+	router.Post("/shorten", func(w http.ResponseWriter, r *http.Request) {
+		link := r.URL.Query().Get("url")
 		log.Println(link)
 		short_link, err := get_short_link(link, storage)
 		if err != nil {
