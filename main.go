@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"url_shortener/database"
 
@@ -12,11 +13,33 @@ import (
 
 func main() {
 	log.Println("Start Api")
-	storage, err := database.Postgres{}.Connect_db()
+	var (
+		storage database.Storage
+		err     error
+	)
+
+	args := os.Args
+	if len(args) < 2 {
+		storage, err = database.InMemory{}.Connect_db()
+		log.Println("Store data in memmory(default)")
+	} else if args[1] == "postgres" {
+		storage, err = database.Postgres{}.Connect_db()
+		if postgres, ok := storage.(database.Postgres); ok {
+			defer postgres.Database.Close()
+		}
+		log.Println("Store data in postgres")
+
+	} else if args[1] == "memmory" {
+		storage, err = database.InMemory{}.Connect_db()
+		log.Println("Store data in memmory")
+	} else {
+		log.Panic(args[1] + " is not correct storage type use \"--postgres\" or \"--memmory\"")
+	}
+
 	if err != nil {
 		log.Panic(err)
 	}
-	log.Println("Connect to storage")
+
 	// create a new router
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)

@@ -12,7 +12,7 @@ type Storage interface {
 }
 
 type Postgres struct {
-	database *sql.DB
+	Database *sql.DB
 }
 type InMemory struct {
 	longToShort map[string]string
