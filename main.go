@@ -11,10 +11,12 @@ import (
 )
 
 func main() {
-	storage, err := database.InMemory{}.Connect_db()
+	log.Println("Start Api")
+	storage, err := database.Postgres{}.Connect_db()
 	if err != nil {
 		log.Panic(err)
 	}
+	log.Println("Connect to storage")
 	// create a new router
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
@@ -41,5 +43,5 @@ func main() {
 		w.Write([]byte(short_link))
 	})
 	// start server
-	log.Panic(http.ListenAndServe(":8000", router))
+	log.Panic(http.ListenAndServe(":9000", router))
 }
