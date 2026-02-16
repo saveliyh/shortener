@@ -1,8 +1,8 @@
-package main
+package logic
 
 import (
 	"errors"
-	"url_shortener/database"
+	"url_shortener/internal/database"
 )
 
 type TestStorage struct{}

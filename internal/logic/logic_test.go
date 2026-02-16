@@ -1,4 +1,4 @@
-package main
+package logic
 
 import "testing"
 
@@ -16,11 +16,11 @@ func Test_unshorten_link_same_long_link(t *testing.T) {
 	name := "unshorten_link test for same input"
 	storage := TestStorage{}
 	short_link := "short_link1"
-	long_link1, err := unshorten_link(short_link, storage)
+	long_link1, err := Unshorten_link(short_link, storage)
 	if err != nil {
 		t.Errorf("%s: error is not nil", name)
 	}
-	long_link2, err := unshorten_link(short_link, storage)
+	long_link2, err := Unshorten_link(short_link, storage)
 	if err != nil {
 		t.Errorf("%s: error is not nil", name)
 	}
@@ -33,12 +33,12 @@ func Test_unshorten_link_different_long_link(t *testing.T) {
 	name := "unshorten_link test for different input"
 	storage := TestStorage{}
 	short_link1 := "short_link1"
-	long_link1, err := unshorten_link(short_link1, storage)
+	long_link1, err := Unshorten_link(short_link1, storage)
 	if err != nil {
 		t.Errorf("%s: error is not nil", name)
 	}
 	short_link2 := "short_link2"
-	long_link2, err := unshorten_link(short_link2, storage)
+	long_link2, err := Unshorten_link(short_link2, storage)
 	if err != nil {
 		t.Errorf("%s: error is not nil", name)
 	}
@@ -51,7 +51,7 @@ func Test_unshorten_link_wrong_input(t *testing.T) {
 	name := "unshorten_link test for wrong input"
 	storage := TestStorage{}
 	short_link := "short_link"
-	_, err := unshorten_link(short_link, storage)
+	_, err := Unshorten_link(short_link, storage)
 	if err == nil {
 		t.Errorf("%s: Had to return \"not found error\"", name)
 	}

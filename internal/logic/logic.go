@@ -1,11 +1,11 @@
-package main
+package logic
 
 import (
 	"math/rand"
-	"url_shortener/database"
+	"url_shortener/internal/database"
 )
 
-func unshorten_link(short_link string, storage database.Storage) (string, error) {
+func Unshorten_link(short_link string, storage database.Storage) (string, error) {
 
 	long_link, err := storage.Get_long_link(short_link)
 	if err != nil {
@@ -14,7 +14,7 @@ func unshorten_link(short_link string, storage database.Storage) (string, error)
 	return long_link, nil
 }
 
-func get_short_link(long_link string, storage database.Storage) (string, error) {
+func Get_short_link(long_link string, storage database.Storage) (string, error) {
 	if storage.Check_long_link(long_link) {
 		return storage.Get_short_link(long_link)
 	}

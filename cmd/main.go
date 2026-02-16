@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"url_shortener/database"
+	"url_shortener/internal/database"
+	"url_shortener/internal/logic"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -47,7 +48,7 @@ func main() {
 	router.Get("/{link}", func(w http.ResponseWriter, r *http.Request) {
 		link := chi.URLParam(r, "link")
 		log.Println(link)
-		long_link, err := unshorten_link(link, storage)
+		long_link, err := logic.Unshorten_link(link, storage)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusNotFound)
@@ -58,7 +59,7 @@ func main() {
 	router.Post("/shorten", func(w http.ResponseWriter, r *http.Request) {
 		link := r.URL.Query().Get("url")
 		log.Println(link)
-		short_link, err := get_short_link(link, storage)
+		short_link, err := logic.Get_short_link(link, storage)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)

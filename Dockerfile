@@ -6,8 +6,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY *.env ./
-COPY *.go ./
-COPY ./database ./database
+COPY ./cmd ./cmd
+COPY ./internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /api
 
