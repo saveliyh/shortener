@@ -14,7 +14,7 @@ func Test_create_short_link(t *testing.T) {
 
 func Test_unshorten_link_same_input(t *testing.T) {
 	name := "unshorten_link test for same input"
-	storage := TestStorage{}
+	storage := &TestStorage{}
 	short_link := "short_link1"
 	long_link1, err := Unshorten_link(short_link, storage)
 	if err != nil {
@@ -31,7 +31,7 @@ func Test_unshorten_link_same_input(t *testing.T) {
 }
 func Test_unshorten_link_different_input(t *testing.T) {
 	name := "unshorten_link test for different input"
-	storage := TestStorage{}
+	storage := &TestStorage{}
 	short_link1 := "short_link1"
 	long_link1, err := Unshorten_link(short_link1, storage)
 	if err != nil {
@@ -49,7 +49,7 @@ func Test_unshorten_link_different_input(t *testing.T) {
 
 func Test_unshorten_link_wrong_input(t *testing.T) {
 	name := "unshorten_link test for wrong input"
-	storage := TestStorage{}
+	storage := &TestStorage{}
 	short_link := "short_link"
 	_, err := Unshorten_link(short_link, storage)
 	if err == nil {
@@ -59,10 +59,10 @@ func Test_unshorten_link_wrong_input(t *testing.T) {
 
 func Test_get_short_link_add_and_retrieve(t *testing.T) {
 	name := "get_short_link test for add and retrieve"
-	storage := TestStorage{}
+	storage := &TestStorage{}
 	long_link := "long_link3"
 	short_link1, err := Get_short_link(long_link, storage)
-	storage.test_store_in_db(short_link1)
+
 	if err != nil {
 		t.Errorf("%s: error is not nil. %s", name, err)
 	}
@@ -78,7 +78,7 @@ func Test_get_short_link_add_and_retrieve(t *testing.T) {
 
 func Test_get_short_link_correct_link_length(t *testing.T) {
 	name := "get_short_link test for correct link length"
-	storage := TestStorage{}
+	storage := &TestStorage{}
 	long_link := "long_link"
 	short_link, err := Get_short_link(long_link, storage)
 	if err != nil {

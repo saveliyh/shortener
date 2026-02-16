@@ -9,7 +9,7 @@ COPY *.env ./
 COPY ./cmd ./cmd
 COPY ./internal ./internal
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /api
+RUN CGO_ENABLED=0 GOOS=linux go build -o /api ./cmd/.
 
 EXPOSE 9000
 

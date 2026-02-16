@@ -1,6 +1,9 @@
 package database
 
-import "database/sql"
+import (
+	"database/sql"
+	"sync"
+)
 
 type Storage interface {
 	Connect_db() (Storage, error)
@@ -12,9 +15,10 @@ type Storage interface {
 }
 
 type Postgres struct {
-	Database *sql.DB
+	database *sql.DB
 }
 type InMemory struct {
 	longToShort map[string]string
 	shortToLong map[string]string
+	sync.RWMutex
 }

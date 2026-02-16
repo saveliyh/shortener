@@ -29,12 +29,14 @@ func Get_short_link(long_link string, storage database.Storage) (string, error) 
 	}
 	err := storage.Store_in_db(short_link, long_link)
 	if err != nil {
+		if storage.Check_long_link(long_link) {
+			return storage.Get_short_link(long_link)
+		}
 		return "", err
 	}
 	return short_link, nil
 }
 
-// TODO: redo to hash
 func create_short_link() string {
 	short_link := make([]byte, LINK_LENGTH)
 	for i := range LINK_LENGTH {

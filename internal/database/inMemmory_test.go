@@ -4,11 +4,11 @@ import "testing"
 
 func Test_inMemory_Connect_db(t *testing.T) {
 	name := "inMemory test for Connect_db"
-	d, err := InMemory{}.Connect_db()
+	d, err := (&InMemory{}).Connect_db()
 	if err != nil {
 		t.Errorf("%s: error is not nil. %s", name, err)
 	}
-	if inMemmory, ok := d.(InMemory); ok {
+	if inMemmory, ok := d.(*InMemory); ok {
 		if inMemmory.longToShort == nil {
 			t.Errorf("%s: longToShort is nil", name)
 		}

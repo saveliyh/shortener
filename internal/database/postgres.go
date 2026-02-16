@@ -12,7 +12,7 @@ import (
 )
 
 func initDB(db *sql.DB) error {
-	_, err := db.Exec("CREATE TABLE IF NOT EXISTS links (short_link VARCHAR(10) PRIMARY KEY, long_link VARCHAR(100))")
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS links (short_link VARCHAR(10) PRIMARY KEY, long_link VARCHAR(100) UNIQUE)")
 	return err
 }
 
@@ -54,7 +54,7 @@ func (t Postgres) Connect_db() (Storage, error) {
 		return t, err
 	}
 	log.Println("connected to DB")
-	t.Database = db
+	t.database = db
 	err = initDB(db)
 	if err != nil {
 		return t, err
@@ -64,17 +64,20 @@ func (t Postgres) Connect_db() (Storage, error) {
 }
 
 func (t Postgres) Check_long_link(long_link string) bool {
-	var count int
-	err := t.Database.QueryRow("SELECT EXISTS(SELECT * FROM links WHERE long_link = $1)", long_link).Scan(&count)
+	var count bool
+	log.Println("check long link")
+	err := t.database.QueryRow("SELECT EXISTS(SELECT * FROM links WHERE long_link = $1)", long_link).Scan(&count)
 	if err != nil {
+		println(err.Error())
 		return false
 	}
-	return count > 0
+
+	return count
 }
 
 func (t Postgres) Check_short_link(short_link string) bool {
 	var count int
-	err := t.Database.QueryRow("SELECT EXISTS(SELECT * FROM links WHERE short_link = $1)", short_link).Scan(&count)
+	err := t.database.QueryRow("SELECT EXISTS(SELECT * FROM links WHERE short_link = $1)", short_link).Scan(&count)
 	if err != nil {
 		return false
 	}
@@ -83,7 +86,7 @@ func (t Postgres) Check_short_link(short_link string) bool {
 
 func (t Postgres) Get_short_link(long_link string) (string, error) {
 	var short_link string
-	err := t.Database.QueryRow("SELECT short_link FROM links WHERE long_link = $1", long_link).Scan(&short_link)
+	err := t.database.QueryRow("SELECT short_link FROM links WHERE long_link = $1", long_link).Scan(&short_link)
 	if err != nil {
 		return "", err
 	}
@@ -92,7 +95,7 @@ func (t Postgres) Get_short_link(long_link string) (string, error) {
 
 func (t Postgres) Get_long_link(short_link string) (string, error) {
 	var long_link string
-	err := t.Database.QueryRow("SELECT long_link FROM links WHERE short_link = $1", short_link).Scan(&long_link)
+	err := t.database.QueryRow("SELECT long_link FROM links WHERE short_link = $1", short_link).Scan(&long_link)
 	if err != nil {
 		return "", err
 	}
@@ -100,9 +103,15 @@ func (t Postgres) Get_long_link(short_link string) (string, error) {
 }
 
 func (t Postgres) Store_in_db(short_link string, long_link string) error {
-	_, err := t.Database.Exec("INSERT INTO links (short_link, long_link) VALUES ($1, $2)", short_link, long_link)
-	if err != nil {
-		return err
-	}
-	return nil
+
+	// if t.Check_long_link(long_link) {
+	// 	return fmt.Errorf("Long link %s already exist in database", long_link)
+	// }
+	_, err := t.database.Exec("INSERT INTO links (short_link, long_link) VALUES ($1, $2)", short_link, long_link)
+
+	return err
+}
+
+func (t Postgres) Close() {
+	t.database.Close()
 }
