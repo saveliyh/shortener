@@ -11,6 +11,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
+func initDB(db *sql.DB) error {
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS links (short_link VARCHAR(10) PRIMARY KEY, long_link VARCHAR(100))")
+	return err
+}
+
 func (t Postgres) Connect_db() (Storage, error) {
 	err := godotenv.Load("db.env")
 
@@ -19,10 +24,7 @@ func (t Postgres) Connect_db() (Storage, error) {
 	}
 	log.Println("loaded .env")
 
-	host, exists := os.LookupEnv("POSTGRES_HOST")
-	if !exists {
-		return t, errors.New("POSTGRES_HOST not set")
-	}
+	host := "database"
 	port, exists := os.LookupEnv("POSTGRES_PORT")
 	if !exists {
 		return t, errors.New("POSTGRES_PORT not set")
@@ -40,18 +42,30 @@ func (t Postgres) Connect_db() (Storage, error) {
 		return t, errors.New("POSTGRES_DB not set")
 	}
 
+	log.Println("Environment varibles extracted")
+
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sql.Open("postgres", psqlconn)
 	if err != nil {
 		return t, err
 	}
+	err = db.Ping()
+	if err != nil {
+		return t, err
+	}
+	log.Println("connected to DB")
 	t.Database = db
+	err = initDB(db)
+	if err != nil {
+		return t, err
+	}
+	log.Println("DB initialized")
 	return t, nil
 }
 
 func (t Postgres) Check_long_link(long_link string) bool {
 	var count int
-	err := t.Database.QueryRow("SELECT EXISTS(SELECT * FROM shortener WHERE long_link = $1)", long_link).Scan(&count)
+	err := t.Database.QueryRow("SELECT EXISTS(SELECT * FROM links WHERE long_link = $1)", long_link).Scan(&count)
 	if err != nil {
 		return false
 	}
@@ -60,7 +74,7 @@ func (t Postgres) Check_long_link(long_link string) bool {
 
 func (t Postgres) Check_short_link(short_link string) bool {
 	var count int
-	err := t.Database.QueryRow("SELECT EXISTS(SELECT * FROM shortener WHERE short_link = $1)", short_link).Scan(&count)
+	err := t.Database.QueryRow("SELECT EXISTS(SELECT * FROM links WHERE short_link = $1)", short_link).Scan(&count)
 	if err != nil {
 		return false
 	}
@@ -69,7 +83,7 @@ func (t Postgres) Check_short_link(short_link string) bool {
 
 func (t Postgres) Get_short_link(long_link string) (string, error) {
 	var short_link string
-	err := t.Database.QueryRow("SELECT short_link FROM shortener WHERE long_link = $1", long_link).Scan(&short_link)
+	err := t.Database.QueryRow("SELECT short_link FROM links WHERE long_link = $1", long_link).Scan(&short_link)
 	if err != nil {
 		return "", err
 	}
@@ -78,7 +92,7 @@ func (t Postgres) Get_short_link(long_link string) (string, error) {
 
 func (t Postgres) Get_long_link(short_link string) (string, error) {
 	var long_link string
-	err := t.Database.QueryRow("SELECT long_link FROM shortener WHERE short_link = $1", short_link).Scan(&long_link)
+	err := t.Database.QueryRow("SELECT long_link FROM links WHERE short_link = $1", short_link).Scan(&long_link)
 	if err != nil {
 		return "", err
 	}
@@ -86,7 +100,7 @@ func (t Postgres) Get_long_link(short_link string) (string, error) {
 }
 
 func (t Postgres) Store_in_db(short_link string, long_link string) error {
-	_, err := t.Database.Exec("INSERT INTO shortener (short_link, long_link) VALUES ($1, $2)", short_link, long_link)
+	_, err := t.Database.Exec("INSERT INTO links (short_link, long_link) VALUES ($1, $2)", short_link, long_link)
 	if err != nil {
 		return err
 	}

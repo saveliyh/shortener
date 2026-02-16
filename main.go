@@ -20,14 +20,14 @@ func main() {
 
 	args := os.Args
 	if len(args) < 2 {
-		storage, err = database.InMemory{}.Connect_db()
 		log.Println("Store data in memmory(default)")
+		storage, err = database.InMemory{}.Connect_db()
 	} else if args[1] == "postgres" {
+		log.Println("Store data in postgres")
 		storage, err = database.Postgres{}.Connect_db()
 		if postgres, ok := storage.(database.Postgres); ok {
 			defer postgres.Database.Close()
 		}
-		log.Println("Store data in postgres")
 
 	} else if args[1] == "memmory" {
 		storage, err = database.InMemory{}.Connect_db()
