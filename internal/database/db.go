@@ -20,5 +20,5 @@ type Postgres struct {
 type InMemory struct {
 	longToShort map[string]string
 	shortToLong map[string]string
-	sync.RWMutex
+	sync.Mutex
 }

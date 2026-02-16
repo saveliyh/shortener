@@ -24,7 +24,6 @@ func (t Postgres) Connect_db() (Storage, error) {
 	}
 	log.Println("loaded .env")
 
-	host := "database"
 	port, exists := os.LookupEnv("POSTGRES_PORT")
 	if !exists {
 		return t, errors.New("POSTGRES_PORT not set")
@@ -41,19 +40,17 @@ func (t Postgres) Connect_db() (Storage, error) {
 	if !exists {
 		return t, errors.New("POSTGRES_DB not set")
 	}
-
 	log.Println("Environment varibles extracted")
+
+	host := "database"
 
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sql.Open("postgres", psqlconn)
 	if err != nil {
 		return t, err
 	}
-	err = db.Ping()
-	if err != nil {
-		return t, err
-	}
 	log.Println("connected to DB")
+
 	t.database = db
 	err = initDB(db)
 	if err != nil {
@@ -103,7 +100,6 @@ func (t Postgres) Get_long_link(short_link string) (string, error) {
 }
 
 func (t Postgres) Store_in_db(short_link string, long_link string) error {
-
 	_, err := t.database.Exec("INSERT INTO links (short_link, long_link) VALUES ($1, $2)", short_link, long_link)
 
 	return err

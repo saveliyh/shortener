@@ -19,6 +19,7 @@ func main() {
 		err     error
 	)
 
+	// choose storage type
 	args := os.Args
 	if len(args) < 2 {
 		log.Println("Store data in memmory(default)")
@@ -29,7 +30,6 @@ func main() {
 		if postgres, ok := storage.(*database.Postgres); ok {
 			defer postgres.Close()
 		}
-
 	} else if args[1] == "memmory" {
 		storage, err = (&database.InMemory{}).Connect_db()
 		log.Println("Store data in memmory")
@@ -44,10 +44,10 @@ func main() {
 	// create a new router
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
+
 	// define a route
 	router.Get("/{link}", func(w http.ResponseWriter, r *http.Request) {
 		link := chi.URLParam(r, "link")
-		log.Println(link)
 		long_link, err := logic.Unshorten_link(link, storage)
 		if err != nil {
 			log.Println(err)
@@ -56,9 +56,9 @@ func main() {
 		}
 		w.Write([]byte(long_link))
 	})
+
 	router.Post("/shorten", func(w http.ResponseWriter, r *http.Request) {
 		link := r.URL.Query().Get("url")
-		log.Println(link)
 		short_link, err := logic.Get_short_link(link, storage)
 		if err != nil {
 			log.Println(err)
@@ -67,6 +67,7 @@ func main() {
 		}
 		w.Write([]byte(short_link))
 	})
+
 	// start server
 	log.Panic(http.ListenAndServe(":9000", router))
 }

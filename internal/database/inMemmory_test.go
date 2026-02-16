@@ -5,9 +5,11 @@ import "testing"
 func Test_inMemory_Connect_db(t *testing.T) {
 	name := "inMemory test for Connect_db"
 	d, err := (&InMemory{}).Connect_db()
+
 	if err != nil {
 		t.Errorf("%s: error is not nil. %s", name, err)
 	}
+
 	if inMemmory, ok := d.(*InMemory); ok {
 		if inMemmory.longToShort == nil {
 			t.Errorf("%s: longToShort is nil", name)
@@ -28,6 +30,7 @@ func Test_inMemory_Check_long_link_exist_input(t *testing.T) {
 			"short_link1": "long_link1",
 		},
 	}
+
 	if !d.Check_long_link("long_link1") {
 		t.Errorf("%s: long_link1 not found in storage", name)
 	}
@@ -39,6 +42,7 @@ func Test_inMemory_Check_long_link_not_exist_input(t *testing.T) {
 		longToShort: map[string]string{},
 		shortToLong: map[string]string{},
 	}
+
 	if d.Check_long_link("long_link1") {
 		t.Errorf("%s: not existed long_link found in storage", name)
 	}
@@ -54,6 +58,7 @@ func Test_inMemory_Check_short_link_exist_input(t *testing.T) {
 			"short_link1": "long_link1",
 		},
 	}
+
 	if !d.Check_short_link("short_link1") {
 		t.Errorf("%s: short_link1 not found in storage", name)
 	}
@@ -65,6 +70,7 @@ func Test_inMemory_Check_short_link_not_exist_input(t *testing.T) {
 		longToShort: map[string]string{},
 		shortToLong: map[string]string{},
 	}
+
 	if d.Check_short_link("short_link1") {
 		t.Errorf("%s: not existed short_link found in storage", name)
 	}
@@ -80,6 +86,7 @@ func Test_inMemory_Get_short_link_correct_input(t *testing.T) {
 			"short_link1": "long_link1",
 		},
 	}
+
 	short_link, err := d.Get_short_link("long_link1")
 	if err != nil {
 		t.Errorf("%s: error is not nil. %s", name, err)
@@ -95,6 +102,7 @@ func Test_inMemory_Get_short_link_wrong_input(t *testing.T) {
 		longToShort: map[string]string{},
 		shortToLong: map[string]string{},
 	}
+
 	_, err := d.Get_short_link("long_link1")
 	if err == nil {
 		t.Errorf("%s: error is nil. Must be \"not found\"", name)
@@ -111,6 +119,7 @@ func Test_inMemory_Get_long_link_correct_input(t *testing.T) {
 			"short_link1": "long_link1",
 		},
 	}
+
 	long_link, err := d.Get_long_link("short_link1")
 	if err != nil {
 		t.Errorf("%s: error is not nil. %s", name, err)
@@ -126,6 +135,7 @@ func Test_inMemory_Get_long_link_wrong_input(t *testing.T) {
 		longToShort: map[string]string{},
 		shortToLong: map[string]string{},
 	}
+
 	_, err := d.Get_long_link("short_link1")
 	if err == nil {
 		t.Errorf("%s: error is nil. Must be \"not found\"", name)
@@ -138,13 +148,16 @@ func Test_inMemory_Store_in_db_correct_input(t *testing.T) {
 		longToShort: map[string]string{},
 		shortToLong: map[string]string{},
 	}
+
 	err := d.Store_in_db("short_link1", "long_link1")
 	if err != nil {
 		t.Errorf("%s: error is not nil. %s", name, err)
 	}
+
 	if _, ok := d.longToShort["long_link1"]; !ok {
 		t.Errorf("%s: long_link1 not added to storage", name)
 	}
+
 	if _, ok := d.shortToLong["short_link1"]; !ok {
 		t.Errorf("%s: short_link1 not added to storage", name)
 	}
@@ -160,6 +173,7 @@ func Test_inMemory_Store_in_db_add_exist_short_link(t *testing.T) {
 			"short_link1": "long_link1",
 		},
 	}
+
 	err := d.Store_in_db("short_link1", "long_link2")
 	if err == nil {
 		t.Errorf("%s: error is nil. Must be \"short link already exist\"", name)
@@ -176,6 +190,7 @@ func Test_inMemory_Store_in_db_add_exist_long_link(t *testing.T) {
 			"short_link1": "long_link1",
 		},
 	}
+
 	err := d.Store_in_db("short_link2", "long_link1")
 	if err == nil {
 		t.Errorf("%s: error is nil. Must be \"long link already exist\"", name)
